@@ -1,0 +1,36 @@
+#!/bin/sh
+set -e
+
+CLOSEST_DEBIAN_MIRROR='http://mirror.fuel-infra.org/mos-repos/ubuntu/'
+MOS_VERSIONS='7.0 8.0 9.0 10.0 master'
+TEMP_FOLDER='tmp'
+
+for TARGET_DISTRO in ${MOS_VERSIONS}
+do
+# Create the folder and remove the Packages.gz / Sources.gz
+for REPO_TYPE in main restricted
+do
+if ! [ -d $TEMP_FOLDER ]; then
+    mkdir -p $TEMP_FOLDER
+fi
+
+DEST_DIST_DIR=${TEMP_FOLDER}/fake-${TARGET_DISTRO}-mirror/dists/${TARGET_DISTRO}/${REPO_TYPE}
+for i in binary-amd64 source ; do
+	if ! [ -d ${DEST_DIST_DIR}/$i ] ; then
+		mkdir -p ${DEST_DIST_DIR}/$i
+	fi
+	if [ "$i" = "source" ] ; then
+		GZFILE=Sources.gz
+	else
+		GZFILE=Packages.gz
+	fi
+	rm -f ${DEST_DIST_DIR}/$i/$GZFILE
+        if [ "$TARGET_DISTRO" = 'master' ]; then
+            MOS_DISTRO=mos-${TARGET_DISTRO}
+        else
+            MOS_DISTRO=mos${TARGET_DISTRO}
+        fi
+	wget ${CLOSEST_DEBIAN_MIRROR}/${TARGET_DISTRO}/dists/${MOS_DISTRO}/${REPO_TYPE}/$i/$GZFILE -O ${DEST_DIST_DIR}/$i/$GZFILE
+done
+done
+done

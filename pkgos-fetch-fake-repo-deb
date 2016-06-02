@@ -1,0 +1,26 @@
+#!/bin/sh
+set -e
+
+CLOSEST_DEBIAN_MIRROR='http://ftp.ua.debian.org/debian/'
+UBUNTU_VERSION='jessie sid experimental'
+
+for TARGET_DISTRO in ${UBUNTU_VERSION}
+do
+# Create the folder and remove the Packages.gz / Sources.gz
+for REPO_TYPE in main contrib non-free
+do
+DEST_DIST_DIR=/etc/pkgos/fake-${TARGET_DISTRO}-mirror/dists/${TARGET_DISTRO}/${REPO_TYPE}
+for i in binary-amd64 source ; do
+	if ! [ -d ${DEST_DIST_DIR}/$i ] ; then
+		mkdir -p ${DEST_DIST_DIR}/$i
+	fi
+	if [ "$i" = "source" ] ; then
+		GZFILE=Sources.gz
+	else
+		GZFILE=Packages.gz
+	fi
+	rm -f ${DEST_DIST_DIR}/$i/$GZFILE
+	wget ${CLOSEST_DEBIAN_MIRROR}/dists/${TARGET_DISTRO}/${REPO_TYPE}/$i/$GZFILE -O ${DEST_DIST_DIR}/$i/$GZFILE
+done
+done
+done
