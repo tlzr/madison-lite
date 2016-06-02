@@ -3,13 +3,15 @@ set -e
 
 CLOSEST_DEBIAN_MIRROR='http://ftp.ua.debian.org/debian/'
 UBUNTU_VERSION='jessie sid experimental'
+TEMP_FOLDER='tmp'
 
 for TARGET_DISTRO in ${UBUNTU_VERSION}
 do
 # Create the folder and remove the Packages.gz / Sources.gz
 for REPO_TYPE in main contrib non-free
 do
-DEST_DIST_DIR=/etc/pkgos/fake-${TARGET_DISTRO}-mirror/dists/${TARGET_DISTRO}/${REPO_TYPE}
+
+DEST_DIST_DIR=${TEMP_FOLDER}/fake-${TARGET_DISTRO}-mirror/dists/${TARGET_DISTRO}/${REPO_TYPE}
 for i in binary-amd64 source ; do
 	if ! [ -d ${DEST_DIST_DIR}/$i ] ; then
 		mkdir -p ${DEST_DIST_DIR}/$i
